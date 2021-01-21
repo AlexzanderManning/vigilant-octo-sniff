@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import SearchBar from './search-bar';
 import Container from 'react-bootstrap/Container';
+import ThemeContext from './theme-context';
 
 const SiteNavBar = ({ handleSearch, handleRegionFilter }) => {
+  const theme = useContext(ThemeContext);
+  console.log("This is the theme context : " , theme);
   return (
-    <Navbar sticky="top" expand="md" bg="light" variant="light">
+    <Navbar sticky="top" expand="md" bg="light" variant='light'>
       <Container>
         <Navbar.Brand>REST Countries API</Navbar.Brand>
         <NavDropdown title="Filter By Region" id="collasible-nav-dropdown">

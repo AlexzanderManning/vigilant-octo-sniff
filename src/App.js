@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -6,59 +6,48 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Container from "react-bootstrap/Container";
 import CountriesDisplay from "./components/countries-display";
 import SiteNavBar from "./components/nav-bar";
+import ThemeContext from './components/theme-context';
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      apiData: [],
-      searchString: "",
-      region: "americas",
-    };
-  }
+const App = () => {
+  //State Hooks
+  const [apiData, setApiData] = useState([]);
+  const [searchString, setSearchString] = useState("");
+  const [region, setRegion] = useState("americas");
 
-  getAPIData() {
-    const { region } = this.state;
+  const handleSearch = (e) => {
+    setSearchString(e.target.value);
+  };
+
+  const handleRegionFilter = (e) => {
+    setRegion(e.target.id);
+  };
+
+  const countries = apiData.filter((country) => {
+    return country.name.toLowerCase().includes(searchString.toLowerCase());
+  });
+
+  //only get newdata if region has changed.
+  useEffect(() => {
+    console.log("Region has changed! : ", region)
     fetch(`https://restcountries.eu/rest/v2/region/${region}`)
       .then((res) => res.json())
-      .then((data) => this.setState({ apiData: data }))
+      .then((data) => setApiData(data))
       .catch((err) => console.log("Data not fetched : ", err));
+  }, [region]);
+
+  const theme = {
+    light: 'light',
+    dark: 'dark'
   }
-
-  handleSearch = (e) => {
-    this.setState({ searchString: e.target.value });
-  };
-
-  handleRegionFilter = (e) => {
-    this.setState({ region: e.target.id });
-  };
-
-  componentDidMount() {
-    this.getAPIData();
-  }
-
-  componentDidUpdate() {
-    this.getAPIData();
-  }
-
-  render() {
-    const { apiData, loaded } = this.state;
-    const styles = {
-      margin: "0 auto !important",
-    };
-
-    const countries = apiData.filter((country) => {
-      return country.name
-        .toLowerCase()
-        .includes(this.state.searchString.toLowerCase());
-    });
-    return (
+  return (
+    <ThemeContext.Provider value={theme}>
       <Container fluid className="App">
-        <SiteNavBar
-          handleSearch={this.handleSearch}
-          handleRegionFilter={this.handleRegionFilter}
-        />
-        <Container styles={styles}>
+        <Container fluid>
+          <SiteNavBar
+            handleSearch={handleSearch}
+            handleRegionFilter={handleRegionFilter}
+          />
+
           <Container>
             <h1 className="text-center mt-3">Rest Countries API</h1>
           </Container>
@@ -68,8 +57,8 @@ class App extends React.Component {
           </Container>
         </Container>
       </Container>
-    );
-  }
-}
+    </ThemeContext.Provider>
+  );
+};
 
 export default App;
